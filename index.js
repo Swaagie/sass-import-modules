@@ -8,30 +8,57 @@ import fs from 'fs';
 const debug = diagnostics('sass-import-modules');
 
 /**
+ * Append extension to file if required.
+ *
+ * @param {String} file File path.
+ * @param {String} ext File extension.
+ * @returns {String} file.
+ * @api private
+ */
+function extension(file, ext) {
+  if (!~file.indexOf(ext)) {
+    file += ext;
+  }
+
+  return file;
+}
+
+/**
  * Resolve the file in node_modules.
  *
  * @param {String} file File path.
  * @param {String} base Current directory.
+ * @param {String} ext File extension.
  * @param {Function} next Completion callback.
  * @returns {void}
  * @api private
  */
-function node(file, base, next)  {
+function node(file, base, ext, next)  {
   debug('Resolving file from node_modules: %s', file);
-  return void resolve(file, { basedir: path.dirname(base) }, next);
+  base = path.dirname(base);
+
+  return void resolve(extension(file, ext), { basedir: base }, (error, result) => {
+    if (result) {
+      return next(null, result);
+    }
+
+    resolve(file, { basedir: base }, next);
+  });
 }
+
 /**
  * Resolve the file locally.
  *
  * @param {String} file File path.
  * @param {String} base Current directory.
+ * @param {String} ext File extension.
  * @param {Function} next Completion callback.
  * @returns {void}
  * @api private
  */
-function local(file, base, next) {
+function local(file, base, ext, next) {
   debug('Resolving file locally: %s', file);
-  file = path.join(path.dirname(base), file);
+  file = extension(path.join(path.dirname(base), file), ext);
 
   return void fs.stat(file, function exists(error, stat) {
     if (error || !stat) {
@@ -78,13 +105,6 @@ export function importer({ ext = '.scss' } = {}) {
    * @api private
    */
   return function resolve(url, prev, done) {
-    //
-    // Url should always be a filename but might be missing the extension.
-    //
-    if (!~url.indexOf(ext)) {
-      url += ext;
-    }
-
     if (cache.has(url)) {
       debug('Resolving from cache: %s', url);
       return void provide(cache.get(url), done);
@@ -128,7 +148,7 @@ export function importer({ ext = '.scss' } = {}) {
         return void run(stack, err, next);
       }
 
-      stack.shift()(url, prev, next);
+      stack.shift()(url, prev, ext, next);
     })([local, node]);
   }
 };
