@@ -5,10 +5,10 @@
   "main": "./dist/index.js",
   "scripts": {
     "prepublish": "mkdir -p dist && babel --presets es2015 -o ./dist/index.js ./index.js",
-    "test": "mocha --spec reporter --compilers js:babel/register ./test.js",
-    "watch": "mocha --watch --spec reporter --compilers js:babel/register ./test.js",
-    "coverage": "istanbul cover node_modules/.bin/_mocha -- ./test.js --compilers js:babel/register",
-    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- ./test.js --compilers js:babel/register"
+    "test": "mocha --spec reporter --compilers js:babel/register ./test/test.js",
+    "watch": "mocha --watch --spec reporter --compilers js:babel/register ./test/test.js",
+    "coverage": "istanbul cover node_modules/.bin/_mocha -- ./test/test.js --compilers js:babel/register",
+    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- ./test/test.js --compilers js:babel/register"
   },
   "repository": {
     "type": "git",

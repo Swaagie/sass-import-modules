@@ -61,7 +61,7 @@ function provide(file, done) {
  * @returns {Function} Importer.
  * @api public
  */
-export function importer({ ext = '.scss' } = options) {
+export function importer({ ext = '.scss' } = {}) {
   const cache = new Map();
 
   if (ext.charAt(0) !== '.') {
@@ -92,8 +92,7 @@ export function importer({ ext = '.scss' } = options) {
 
     //
     // 1. Find the file relative to the previous discovered file.
-    // 2. Find the file node_modules.
-    // 3. Find the file in bower_modules.
+    // 2. Find the file or module in node_modules.
     //
     debug('Resolving: %s', url);
     (function run(stack, error) {
