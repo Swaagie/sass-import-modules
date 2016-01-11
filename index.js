@@ -139,7 +139,7 @@ export function importer({ ext = '.scss' } = {}) {
         // All resolvers ran, no results found, return error.
         //
         if (error && !stack.length) {
-          throw error;
+          throw new Error(`Could not find file: ${url} from parent ${prev}`);
         }
 
         //
