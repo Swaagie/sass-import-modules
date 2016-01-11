@@ -53,7 +53,7 @@ The following options are supported, provide them as object to the importer:
 ```js
   import importer from 'sass-import-modules';
 
-  importer({ ext: '.scss' });
+  importer(/* { options } */);
 ```
 
 - **ext** file extension, i.e `.scss`, `.sass`, `scss` or `sass` (default: `.scss`).
