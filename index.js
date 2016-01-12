@@ -35,7 +35,6 @@ function extension(file, ext) {
  */
 function node(base, file, ext, next)  {
   debug('Resolving file from node_modules: %s', file);
-  base = path.dirname(base);
 
   return void resolve(extension(file, ext), { basedir: base }, (error, result) => {
     if (result) {
@@ -58,7 +57,7 @@ function node(base, file, ext, next)  {
  */
 function local(base, file, ext, next) {
   debug('Resolving file locally: %s', file);
-  file = extension(path.join(path.dirname(base), file), ext);
+  file = extension(path.join(base, file), ext);
 
   return void exists(file, exist => {
     next(null, exist ? file : null);
@@ -99,8 +98,6 @@ function exists(file, done) {
  * @api public
  */
 export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
-  const cache = new Map();
-
   if (ext.charAt(0) !== '.') {
     ext = '.' + ext;
   }
@@ -116,15 +113,11 @@ export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
    */
   return function resolve(url, prev, done) {
     const options = this.options || {};
-    const includes = [].concat(options.includePaths, prev, root).filter(Boolean);
+    const dirnamePrev = path.dirname(prev);
+    const includes = [].concat(options.includePaths, dirnamePrev, root).filter(Boolean);
     const fns = [local, node].reduce((arr, fn) => {
       return arr.concat(includes.map(base => fn.bind(fn, base)));
     }, []);
-
-    if (cache.has(url)) {
-      debug('Resolving from cache: %s', url);
-      return void provide(cache.get(url), done);
-    }
 
     //
     // 1. Find the file relative to the previous discovered file.
@@ -147,7 +140,6 @@ export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
         // Resolved to a file on disk, return the file early.
         //
         if (file) {
-          cache.set(url, file);
           return void provide(file, done);
         }
 
