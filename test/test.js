@@ -10,7 +10,7 @@ describe('SASS import modules', function () {
   let imports;
 
   beforeEach(function () {
-    imports = importer();
+    imports = importer().bind({});
   });
 
   it('returns an importer function', function () {
@@ -19,7 +19,7 @@ describe('SASS import modules', function () {
   });
 
   it('has configurable extensions', function (done) {
-    imports = importer({ ext: 'sass' });
+    imports = importer({ ext: 'sass' }).bind({});
 
     imports('ext', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');

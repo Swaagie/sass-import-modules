@@ -26,14 +26,14 @@ function extension(file, ext) {
 /**
  * Resolve the file in node_modules.
  *
- * @param {String} file File path.
  * @param {String} base Current directory.
+ * @param {String} file File path.
  * @param {String} ext File extension.
  * @param {Function} next Completion callback.
  * @returns {void}
  * @api private
  */
-function node(file, base, ext, next)  {
+function node(base, file, ext, next)  {
   debug('Resolving file from node_modules: %s', file);
   base = path.dirname(base);
 
@@ -56,16 +56,12 @@ function node(file, base, ext, next)  {
  * @returns {void}
  * @api private
  */
-function local(file, base, ext, next) {
+function local(base, file, ext, next) {
   debug('Resolving file locally: %s', file);
   file = extension(path.join(path.dirname(base), file), ext);
 
-  return void fs.stat(file, function exists(error, stat) {
-    if (error || !stat) {
-      return next(error);
-    }
-
-    next(null, file);
+  return void exists(file, exist => {
+    next(null, exist ? file : null);
   });
 }
 
@@ -82,13 +78,27 @@ function provide(file, done) {
 }
 
 /**
+ * Check if the file exists.
+ *
+ * @param {String} file
+ * @param {Function} done Completion callback
+ * @returns {void}
+ * @api private
+ */
+function exists(file, done) {
+  return void fs.stat(file, (error, stat) => {
+    done(!error && !!stat);
+  });
+}
+
+/**
  * Setup an importer for node-sass.
  *
  * @param {Object} options Optional configuration.
  * @returns {Function} Importer.
  * @api public
  */
-export function importer({ ext = '.scss' } = {}) {
+export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
   const cache = new Map();
 
   if (ext.charAt(0) !== '.') {
@@ -105,6 +115,12 @@ export function importer({ ext = '.scss' } = {}) {
    * @api private
    */
   return function resolve(url, prev, done) {
+    const options = this.options || {};
+    const includes = [].concat(options.includePaths, prev, root).filter(Boolean);
+    const fns = [local, node].reduce((arr, fn) => {
+      return arr.concat(includes.map(base => fn.bind(fn, base)));
+    }, []);
+
     if (cache.has(url)) {
       debug('Resolving from cache: %s', url);
       return void provide(cache.get(url), done);
@@ -136,19 +152,27 @@ export function importer({ ext = '.scss' } = {}) {
         }
 
         //
-        // All resolvers ran, no results found, return error.
+        // All resolvers ran, no results found, return error if any.
         //
-        if (error && !stack.length) {
-          throw new Error(`Could not find file: ${url} from parent ${prev}`);
+        if (!stack.length) {
+          if (error) throw new Error(`Could not find file: ${url} from parent ${prev}`);
+          return void done();
         }
 
         //
         // Iterate over the stack.
         //
+        debug('Stack step complete, iterating over remaining %d', stack.length);
         return void run(stack, err, next);
       }
 
-      stack.shift()(url, prev, ext, next);
-    })([local, node]);
+      //
+      // Edge case where the source might not be a file, e.g. data was provided.
+      // The proper path is likely the first index of `sass.includePaths` as that is
+      // the root of the build.
+      //
+
+      stack.shift()(url, ext, next);
+    })(fns);
   }
 };
