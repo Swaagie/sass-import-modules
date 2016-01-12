@@ -57,6 +57,7 @@ The following options are supported, provide them as object to the importer:
 ```
 
 - **ext** file extension, i.e `.scss`, `.sass`, `scss` or `sass` (default: `.scss`).
+- **paths** additional lookup paths, should be absolute.
 
 ### License
 

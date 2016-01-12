@@ -97,7 +97,7 @@ function exists(file, done) {
  * @returns {Function} Importer.
  * @api public
  */
-export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
+export function importer({ paths = process.cwd(), ext = '.scss' } = {}) {
   if (ext.charAt(0) !== '.') {
     ext = '.' + ext;
   }
@@ -114,7 +114,7 @@ export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
   return function resolve(url, prev, done) {
     const options = this.options || {};
     const dirnamePrev = path.dirname(prev);
-    const includes = [].concat(options.includePaths, dirnamePrev, root).filter(Boolean);
+    const includes = [].concat(options.includePaths, dirnamePrev, paths).filter(Boolean);
     const fns = [local, node].reduce((arr, fn) => {
       return arr.concat(includes.map(base => fn.bind(fn, base)));
     }, []);
@@ -157,12 +157,6 @@ export function importer({ root = process.cwd(), ext = '.scss' } = {}) {
         debug('Stack step complete, iterating over remaining %d', stack.length);
         return void run(stack, err, next);
       }
-
-      //
-      // Edge case where the source might not be a file, e.g. data was provided.
-      // The proper path is likely the first index of `sass.includePaths` as that is
-      // the root of the build.
-      //
 
       stack.shift()(url, ext, next);
     })(fns);
