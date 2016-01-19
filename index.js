@@ -1,10 +1,12 @@
 'use strict';
 
+import Dependencies from './dependencies';
 import diagnostics from 'diagnostics';
 import resolve from 'resolve';
 import path from 'path';
 import fs from 'fs';
 
+const mock = path.join(__dirname, 'circular.scss');
 const debug = diagnostics('sass-import-modules');
 
 /**
@@ -98,6 +100,8 @@ function exists(file, done) {
  * @api public
  */
 export function importer({ paths = process.cwd(), ext = '.scss' } = {}) {
+  const dependencies = new Dependencies();
+
   if (ext.charAt(0) !== '.') {
     ext = '.' + ext;
   }
@@ -137,9 +141,18 @@ export function importer({ paths = process.cwd(), ext = '.scss' } = {}) {
         error = error || err;
 
         //
+        // Mock with empty file if a circular dependency is detected.
+        //
+        if (dependencies.circular(prev, file)) {
+          debug('Found circular dependency, mocking empty file');
+          return void provide(mock, done);
+        }
+
+        //
         // Resolved to a file on disk, return the file early.
         //
         if (file) {
+          dependencies.add(prev, file);
           return void provide(file, done);
         }
 
