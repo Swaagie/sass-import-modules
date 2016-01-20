@@ -1,6 +1,6 @@
 'use strict';
 
-const importer = require('../index').importer;
+const importer = require('../src').importer;
 const sass = require('node-sass');
 const assume = require('assume');
 const path = require('path');

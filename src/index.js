@@ -6,7 +6,7 @@ import resolve from 'resolve';
 import path from 'path';
 import fs from 'fs';
 
-const mock = path.join(__dirname, 'circular.scss');
+const mock = path.join(__dirname, '..', 'circular.scss');
 const debug = diagnostics('sass-import-modules');
 
 /**
