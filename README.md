@@ -7,8 +7,7 @@
 [david]: https://img.shields.io/david/Swaagie/sass-import-modules.svg?style=flat-square
 [cover]: http://img.shields.io/coveralls/Swaagie/sass-import-modules/master.svg?style=flat-square
 
-SASS/SCSS helper function to import modules or files from node_modules without the need to specify full paths.
-For example, `@import "node_modules/test/file.scss";` will become `@import "test/file";`.
+SASS/SCSS helper function to import modules or files from node_modules without the need to specify full paths. For example, `@import "node_modules/test/file.scss";` will become `@import "test/file";`. The order of resolvers is configurable, e.g. partials can be given priority over `node_modules`.
 
 ### Install
 
@@ -20,13 +19,13 @@ npm install --save sass-import-modules
 
 ##### node-sass
 
-If your using node-sass programmatically, add the importer to option.
+If your using node-sass programmatically, add the importer to options.
 
 ```js
 import importer from 'sass-import-modules';
 
 sass.render({
-  importer: importer()
+  importer: importer(/* { options } */)
 }, (error, result) => {
   // node-sass output
 })
@@ -41,7 +40,7 @@ import importer from 'sass-import-modules';
 
 module.exports = {
   sassLoader: {
-    importer: importer()
+    importer: importer(/* { options } */)
   }
 }
 ```
@@ -57,6 +56,7 @@ The following options are supported, provide them as object to the importer:
 ```
 
 - **ext** file extension, i.e `.scss`, `.sass`, `scss` or `sass` (default: `.scss`).
+- **resolvers** order of and set of resolvers to use, i.e. `local`, `node`, `partial` (default: ['local', 'node']).
 - **paths** additional lookup paths, should be absolute.
 
 ### License
