@@ -53,6 +53,16 @@ describe('SASS import modules', function () {
     });
   });
 
+  it('can be configured to import partial files without underscore', function (done) {
+    imports = importer({ resolvers: ['partial'] }).bind({});
+
+    imports('partial', fixtures, function ({ file } = {}) {
+      assume(file).to.be.a('string');
+      assume(file).to.include('test/fixtures/_partial.scss');
+      done();
+    });
+  });
+
   it('can resolve circular references', function (done) {
     sass.render({
       file: path.join(__dirname, 'fixtures', 'circular.scss'),
