@@ -143,9 +143,22 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
     const dirnamePrev = path.dirname(prev);
     const includes = [].concat(options.includePaths, dirnamePrev, paths).filter(Boolean);
     const fns = resolvers
-      .map(fn => resolverSet[fn])
-      .filter(Boolean)
-      .reduce((arr, fn) => arr.concat(includes.map(base => fn.bind(fn, base))), []);
+      .map(name => {
+        return {
+          name: name,
+          fn: resolverSet[name]
+        }
+      })
+      .filter(resolver => resolver.fn)
+      .reduce((arr, resolver) => {
+        return arr.concat(includes.map(base => {
+          return {
+            base,
+            name: resolver.name,
+            fn: resolver.fn.bind(resolver.fn, base)
+          };
+        }));
+      }, []);
 
     //
     // 1. Find the file relative to the previous discovered file.
@@ -195,7 +208,9 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
         return void run(stack, err, next);
       }
 
-      stack.shift()(url, ext, next);
+      var resolver = stack.shift();
+      debug('Lookup %s [%s, %s]', url, resolver.name, resolver.base);
+      resolver.fn(url, ext, next);
     })(fns);
   }
 };
