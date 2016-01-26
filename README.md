@@ -56,7 +56,7 @@ The following options are supported, provide them as object to the importer:
 ```
 
 - **ext** file extension, i.e `.scss`, `.sass`, `scss` or `sass` (default: `.scss`).
-- **resolvers** order of and set of resolvers to use, i.e. `local`, `node`, `partial` (default: ['local', 'node']).
+- **resolvers** order of and set of resolvers to use, i.e. `local`, `node`, `partial` (default: `['local', 'node']`).
 - **paths** additional lookup paths, should be absolute.
 
 ### License
