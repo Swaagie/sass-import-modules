@@ -142,6 +142,15 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
     const options = this.options || {};
     const dirnamePrev = path.dirname(prev);
     const includes = [].concat(options.includePaths, dirnamePrev, paths).filter(Boolean);
+
+    //
+    // Generate a set of resolvers for each include path. Depending on the order
+    // and provided resolvers, resolvers will resolve the file:
+    //
+    //   - relative to the previous file.
+    //   - from a module in node_modules.
+    //   - as partial with prepended underscore relative to the previous file.
+    //
     const fns = resolvers
       .map(name => {
         return {
@@ -150,22 +159,14 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
         }
       })
       .filter(resolver => resolver.fn)
-      .reduce((arr, resolver) => {
-        return arr.concat(includes.map(base => {
-          return {
-            base,
-            name: resolver.name,
-            fn: resolver.fn.bind(resolver.fn, base)
-          };
-        }));
-      }, []);
+      .reduce((arr, resolver) => arr.concat(
+        includes.map(base => Object.assign({ base }, resolver))
+      ), []);
 
-    //
-    // 1. Find the file relative to the previous discovered file.
-    // 2. Find the file or module in node_modules.
-    //
     debug('Resolving: %s', url);
     (function run(stack, error) {
+      const resolver = stack.shift();
+
       /**
        * Completion callback.
        *
@@ -208,9 +209,8 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
         return void run(stack, err, next);
       }
 
-      var resolver = stack.shift();
-      debug('Lookup %s [%s, %s]', url, resolver.name, resolver.base);
-      resolver.fn(url, ext, next);
+      debug('Lookup %s [%s,  %s]', url, resolver.name, resolver.base);
+      resolver.fn(resolver.base, url, ext, next);
     })(fns);
   }
 };
