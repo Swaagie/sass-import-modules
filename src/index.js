@@ -110,10 +110,28 @@ function partial(base, file, ext, next) {
   return void local(base, file, ext, next);
 }
 
-//
-// Set of resolvers to be used a reference for options.resolvers.
-//
-const resolverSet = { local, node, partial };
+/**
+ * Generate a set of resolvers for each include path. Depending on the order
+ * and provided resolvers, resolvers will resolve the file:
+ *
+ *  - relative to the previous file.
+ *  - from a module in node_modules.
+ *  - as partial with prepended underscore relative to the previous file.
+ *
+ * @param {Array} String references to resolvers.
+ * @returns {Array} Resolve methods.
+ * @api private
+ */
+function getResolvers(resolvers) {
+  const resolverSet = { local, node, partial };
+
+  return resolvers.map(name => {
+    return {
+      name: name,
+      fn: resolverSet[name]
+    }
+  }).filter(resolver => resolver.fn);
+}
 
 /**
  * Setup an importer for node-sass.
@@ -124,6 +142,7 @@ const resolverSet = { local, node, partial };
  */
 export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'node']} = {}) {
   const dependencies = new Dependencies();
+  resolvers = getResolvers(resolvers);
 
   if (ext.charAt(0) !== '.') {
     ext = '.' + ext;
@@ -139,29 +158,12 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
    * @api private
    */
   return function resolve(url, prev, done) {
-    const options = this.options || {};
+    const { includePaths } = this.options || {};
     const dirnamePrev = path.dirname(prev);
-    const includes = [].concat(options.includePaths, dirnamePrev, paths).filter(Boolean);
-
-    //
-    // Generate a set of resolvers for each include path. Depending on the order
-    // and provided resolvers, resolvers will resolve the file:
-    //
-    //   - relative to the previous file.
-    //   - from a module in node_modules.
-    //   - as partial with prepended underscore relative to the previous file.
-    //
-    const fns = resolvers
-      .map(name => {
-        return {
-          name: name,
-          fn: resolverSet[name]
-        }
-      })
-      .filter(resolver => resolver.fn)
-      .reduce((arr, resolver) => arr.concat(
-        includes.map(base => Object.assign({ base }, resolver))
-      ), []);
+    const includes = [].concat(includePaths || [], dirnamePrev, paths);
+    const fns = resolvers.reduce((arr, resolver) => arr.concat(
+      includes.map(base => Object.assign({ base }, resolver))
+    ), []);
 
     debug('Resolving: %s', url);
     (function run(stack, error) {
