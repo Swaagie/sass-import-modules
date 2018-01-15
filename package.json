@@ -20,18 +20,18 @@
   "author": "Martijn Swaagman",
   "license": "MIT",
   "devDependencies": {
-    "assume": "~1.3.1",
-    "babel": "~6.3.26",
-    "babel-cli": "~6.4.0",
-    "babel-preset-es2015": "~6.3.13",
-    "babel-register": "~6.3.13",
+    "assume": "~1.4.1",
+    "babel": "~6.23.0",
+    "babel-cli": "~6.23.0",
+    "babel-preset-es2015": "~6.22.0",
+    "babel-register": "~6.23.0",
     "istanbul": "~0.4.1",
-    "mocha": "~2.3.4",
-    "node-sass": "~3.4.2",
-    "pre-commit": "~1.1.2"
+    "mocha": "~3.2.0",
+    "node-sass": "~4.5.0",
+    "pre-commit": "~1.2.2"
   },
   "dependencies": {
-    "diagnostics": "~1.0.1",
-    "resolve": "~1.1.6"
+    "diagnostics": "~1.1.0",
+    "resolve": "~1.3.2"
   }
 }

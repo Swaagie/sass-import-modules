@@ -1,5 +1,7 @@
 ## SASS import modules
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Swaagie/sass-import-modules.svg)](https://greenkeeper.io/)
+
 [![Version npm][version]](http://browsenpm.org/package/sass-import-modules)[![Build Status][build]](https://travis-ci.org/Swaagie/sass-import-modules)[![Dependencies][david]](https://david-dm.org/Swaagie/sass-import-modules)[![Coverage Status][cover]](https://coveralls.io/r/Swaagie/sass-import-modules?branch=master)
 
 [version]: http://img.shields.io/npm/v/sass-import-modules.svg?style=flat-square
