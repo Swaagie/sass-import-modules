@@ -32,6 +32,6 @@
   },
   "dependencies": {
     "diagnostics": "~1.1.0",
-    "resolve": "~1.3.2"
+    "resolve": "~1.6.0"
   }
 }
