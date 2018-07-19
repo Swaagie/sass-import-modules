@@ -6,7 +6,7 @@
  *
  * @constructor
  * @param {Map} options.cache Memoizer.
- * @api public
+ * @public
  */
 function Dependencies({ cache = new Map } = {}) {
   this.cache = cache;
@@ -18,7 +18,7 @@ function Dependencies({ cache = new Map } = {}) {
  * @param {String} parent Filepath of file referencing the dependency.
  * @param {String} dependency Filepath of the dependency.
  * @returns {Boolean} Circular or not?
- * @api public
+ * @public
  */
 Dependencies.prototype.add = function add(parent, dependency) {
   if (!this.cache.has(parent)) {
@@ -34,7 +34,7 @@ Dependencies.prototype.add = function add(parent, dependency) {
  * @param {String} parent Filepath of file referencing the dependency.
  * @param {String} dependency Filepath of the dependency.
  * @returns {Boolean} Circular or not?
- * @api public
+ * @public
  */
 Dependencies.prototype.circular = function circular(parent, dependency) {
   if (!this.cache.has(dependency)) {

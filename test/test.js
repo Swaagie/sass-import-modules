@@ -63,6 +63,17 @@ describe('SASS import modules', function () {
     });
   });
 
+  it('resolves ~ to `node_modules`', function (done) {
+    imports = importer({ ext: 'js' }).bind({});
+    imports = importer({ resolvers: ['local', 'tilde'] }).bind({});
+
+    imports('~diagnostics/index', fixtures, function ({ file } = {}) {
+      assume(file).to.be.a('string');
+      assume(file).to.include('node_modules/diagnostics/index.js');
+      done();
+    });
+  });
+
   it('can resolve circular references', function (done) {
     sass.render({
       file: path.join(__dirname, 'fixtures', 'circular.scss'),

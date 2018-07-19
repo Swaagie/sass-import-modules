@@ -15,7 +15,7 @@ const debug = diagnostics('sass-import-modules');
  * @param {String} file File path.
  * @param {String} ext File extension.
  * @returns {String} file.
- * @api private
+ * @private
  */
 function extension(file, ext) {
   if (!~file.indexOf(ext)) {
@@ -31,7 +31,7 @@ function extension(file, ext) {
  * @param {String} file Absolute path to file.
  * @param {Function} done Completion callback.
  * @returns {void}
- * @api private
+ * @private
  */
 function provide(file, done) {
   return void done({ file });
@@ -43,7 +43,7 @@ function provide(file, done) {
  * @param {String} file
  * @param {Function} done Completion callback
  * @returns {void}
- * @api private
+ * @private
  */
 function exists(file, done) {
   return void fs.stat(file, (error, stat) => {
@@ -59,7 +59,7 @@ function exists(file, done) {
  * @param {String} ext File extension.
  * @param {Function} next Completion callback.
  * @returns {void}
- * @api private
+ * @private
  */
 function node(base, file, ext, next)  {
   debug('Resolving file from node_modules: %s', file);
@@ -82,7 +82,7 @@ function node(base, file, ext, next)  {
  * @param {String} ext File extension.
  * @param {Function} next Completion callback.
  * @returns {void}
- * @api private
+ * @private
  */
 function local(base, file, ext, next) {
   debug('Resolving file locally: %s', file);
@@ -101,7 +101,7 @@ function local(base, file, ext, next) {
  * @param {String} ext File extension.
  * @param {Function} next Completion callback.
  * @returns {void}
- * @api private
+ * @private
  */
 function partial(base, file, ext, next) {
   debug('Resolving file as partial with prepended underscore: %s', file);
@@ -111,19 +111,39 @@ function partial(base, file, ext, next) {
 }
 
 /**
+ * Resolve files prepended with a tilde to node_modules.
+ *
+ * @param {String} file File path.
+ * @param {String} base Current directory.
+ * @param {String} ext File extension.
+ * @param {Function} next Completion callback.
+ * @returns {void}
+ * @private
+ */
+function tilde(base, file, ext, next) {
+  if (file.indexOf('~') === 0) {
+    debug('Resolving file with ~ to node_modules: %s', file);
+    return void node(base, file.substr(1), ext, next);
+  }
+
+  return void next();
+}
+
+/**
  * Generate a set of resolvers for each include path. Depending on the order
  * and provided resolvers, resolvers will resolve the file:
  *
  *  - relative to the previous file.
+ *  - from node_modules if prepended with a tilde.
  *  - from a module in node_modules.
  *  - as partial with prepended underscore relative to the previous file.
  *
  * @param {Array} String references to resolvers.
  * @returns {Array} Resolve methods.
- * @api private
+ * @private
  */
 function getResolvers(resolvers) {
-  const resolverSet = { local, node, partial };
+  const resolverSet = { local, tilde, node, partial };
 
   return resolvers.map(name => {
     return {
@@ -138,9 +158,9 @@ function getResolvers(resolvers) {
  *
  * @param {Object} options Optional configuration.
  * @returns {Function} Importer.
- * @api public
+ * @public
  */
-export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'node']} = {}) {
+export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'tilde', 'node']} = {}) {
   const dependencies = new Dependencies();
   resolvers = getResolvers(resolvers);
 
@@ -155,7 +175,7 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
    * @param {String} prev Last resolved file.
    * @param {Function} done Completion callback.
    * @returns {void} Return early.
-   * @api private
+   * @private
    */
   return function resolve(url, prev, done) {
     const { includePaths } = this.options || {};
