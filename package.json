@@ -1,14 +1,14 @@
 {
   "name": "sass-import-modules",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "SASS/SCSS Import function to import files from node_modules",
   "main": "./dist/index.js",
+  "engines": {
+    "node": ">= 10"
+  },
   "scripts": {
-    "prepublish": "mkdir -p dist && babel src --presets es2015 -d dist",
-    "test": "mocha --spec reporter --require babel-register ./test/test.js",
-    "watch": "mocha --watch --spec reporter --require babel-register ./test/test.js",
-    "coverage": "istanbul cover node_modules/.bin/_mocha -- ./test/test.js --require babel-register",
-    "test-travis": "istanbul cover node_modules/.bin/_mocha --report lcovonly -- ./test/test.js --require babel-register"
+    "prepublishOnly": "babel src -d dist",
+    "test": "nyc mocha --require @babel/register ./test/test.js"
   },
   "repository": {
     "type": "git",
@@ -20,18 +20,17 @@
   "author": "Martijn Swaagman",
   "license": "MIT",
   "devDependencies": {
-    "assume": "^2.0.0",
-    "babel": "^6.23.0",
-    "babel-cli": "^6.23.0",
-    "babel-preset-es2015": "^6.22.0",
-    "babel-register": "^6.23.0",
-    "istanbul": "^0.4.1",
-    "mocha": "^5.0.0",
-    "node-sass": "^4.8.0",
-    "pre-commit": "^1.2.2"
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
+    "@babel/register": "^7.7.4",
+    "assume": "^2.2.0",
+    "mocha": "^6.2.2",
+    "node-sass": "^4.13.0",
+    "nyc": "^14.1.1"
   },
   "dependencies": {
-    "diagnostics": "^1.1.0",
-    "resolve": "^1.6.0"
+    "diagnostics": "^2.0.2",
+    "resolve": "^1.13.0"
   }
 }

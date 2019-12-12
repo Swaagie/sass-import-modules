@@ -37,6 +37,14 @@ describe('SASS import modules', function () {
     });
   });
 
+  it('can resolve symlinked modules', function (done) {
+    imports('symlinked-test/file', fixtures, function ({ file } = {}) {
+      assume(file).to.be.a('string');
+      assume(file).to.include('test/fixtures/node_modules/test/file.scss');
+      done();
+    });
+  });
+
   it('imports main from node_module', function (done) {
     imports('test', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
@@ -64,12 +72,12 @@ describe('SASS import modules', function () {
   });
 
   it('resolves ~ to `node_modules`', function (done) {
-    imports = importer({ ext: 'js' }).bind({});
+    imports = importer({ ext: 'json' }).bind({});
     imports = importer({ resolvers: ['local', 'tilde'] }).bind({});
 
-    imports('~diagnostics/index', fixtures, function ({ file } = {}) {
+    imports('~diagnostics/package.json', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
-      assume(file).to.include('node_modules/diagnostics/index.js');
+      assume(file).to.include('node_modules/diagnostics/package.json');
       done();
     });
   });

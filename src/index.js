@@ -64,7 +64,7 @@ function exists(file, done) {
 function node(base, file, ext, next)  {
   debug('Resolving file from node_modules: %s', file);
 
-  return void resolve(extension(file, ext), { basedir: base }, (error, result) => {
+  return void resolve(extension(file, ext), { preserveSymlinks: false, basedir: base }, (error, result) => {
     if (result) {
       return next(null, result);
     }
