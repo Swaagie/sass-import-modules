@@ -25,7 +25,7 @@
     "@babel/preset-env": "^7.7.6",
     "@babel/register": "^7.7.4",
     "assume": "^2.2.0",
-    "mocha": "^6.2.2",
+    "mocha": "^7.0.1",
     "node-sass": "^4.13.0",
     "nyc": "^15.0.0"
   },
