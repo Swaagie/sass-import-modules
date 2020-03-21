@@ -20,7 +20,7 @@
   "author": "Martijn Swaagman",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.7.5",
+    "@babel/cli": "^7.8.4",
     "@babel/core": "^7.7.5",
     "@babel/preset-env": "^7.7.6",
     "@babel/register": "^7.7.4",
