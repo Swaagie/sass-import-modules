@@ -23,7 +23,7 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.0",
-    "@babel/register": "^7.7.4",
+    "@babel/register": "^7.9.0",
     "assume": "^2.2.0",
     "mocha": "^6.2.2",
     "node-sass": "^4.13.0",
