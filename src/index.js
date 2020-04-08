@@ -62,6 +62,7 @@ function exists(file, done) {
  * @private
  */
 function node(base, file, ext, next)  {
+  debug('Resolving file from node_modules: %s', file);
   const extensions = [ext];
 
   return void resolve(file, {
