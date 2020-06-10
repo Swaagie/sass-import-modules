@@ -1,5 +1,7 @@
 # CHANGELOG
 
+### 5.0.0
+
 - Remove ESM and expose CJS
 - Remove babel dependencies and build step/requirement
 - Expose default importer for CLI usage of `node-sass`
