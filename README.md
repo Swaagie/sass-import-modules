@@ -19,12 +19,20 @@ npm install --save sass-import-modules
 
 ### Usage
 
+#### CLI
+
+Basic support for CLI usage exists
+
+```bash
+node-sass --importer sass-import-modules test/fixtures/index.scss
+```
+
 ##### node-sass
 
 If your using node-sass programmatically, add the importer to options.
 
 ```js
-import importer from 'sass-import-modules';
+const { importer } = require('sass-import-modules');
 
 sass.render({
   importer: importer(/* { options } */)
@@ -38,7 +46,7 @@ sass.render({
 Add the importer to the `sassLoader` options.
 
 ```js
-import importer from 'sass-import-modules';
+const { importer } = require('sass-import-modules');
 
 module.exports = {
   sassLoader: {
@@ -52,16 +60,16 @@ module.exports = {
 The following options are supported, provide them as object to the importer:
 
 ```js
-  import importer from 'sass-import-modules';
+const { importer } = require('sass-import-modules');
 
   importer(/* { options } */);
 ```
 
 - **ext** file extension, i.e `.scss`, `.sass`, `scss` or `sass` (default: `.scss`).
 - **resolvers** order of and set of resolvers to use (default: `['local', 'tilde', 'node']`):
-  - `local`, 
+  - `local`,
   - `tilde`,
-  - `node`, 
+  - `node`,
   - `partial`
 - **paths** additional lookup paths, should be absolute.
 

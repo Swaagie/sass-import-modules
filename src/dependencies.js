@@ -44,4 +44,4 @@ Dependencies.prototype.circular = function circular(parent, dependency) {
   return ~this.cache.get(dependency).indexOf(parent);
 }
 
-export default Dependencies;
+module.exports = Dependencies;

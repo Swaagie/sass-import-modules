@@ -1,10 +1,11 @@
 'use strict';
 
-const importer = require('../src').importer;
+const sassImporter = require('../src');
 const sass = require('node-sass');
 const assume = require('assume');
 const path = require('path');
 
+const { importer } = sassImporter;
 const fixtures = path.join(__dirname, 'fixtures', 'index.scss');
 
 describe('SASS import modules', function () {
@@ -12,6 +13,11 @@ describe('SASS import modules', function () {
 
   beforeEach(function () {
     imports = importer().bind({});
+  });
+
+  it('exposes a default importer for CLI usage', function () {
+    assume(importer().name).to.deep.equal(sassImporter.name);
+    assume(sassImporter).to.be.a('function');
   });
 
   it('returns an importer function', function () {
