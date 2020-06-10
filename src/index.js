@@ -1,10 +1,10 @@
 'use strict';
 
-import Dependencies from './dependencies';
-import diagnostics from 'diagnostics';
-import resolve from 'resolve';
-import path from 'path';
-import fs from 'fs';
+const Dependencies = require('./dependencies');
+const diagnostics = require('diagnostics');
+const resolve = require('resolve');
+const path = require('path');
+const fs = require('fs');
 
 const mock = path.join(__dirname, '..', 'circular.scss');
 const debug = diagnostics('sass-import-modules');
@@ -168,7 +168,7 @@ function getResolvers(resolvers) {
  * @returns {Function} Importer.
  * @public
  */
-export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'tilde', 'node']} = {}) {
+function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'partial', 'tilde', 'node']} = {}) {
   const dependencies = new Dependencies();
   resolvers = getResolvers(resolvers);
 
@@ -244,3 +244,12 @@ export function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['l
     })(fns);
   }
 };
+
+//
+// Expose a default resolver that can be used by the node-sass CLI `--importer` argument.
+// And expose the original importer for programmatic use.
+//
+const defaultImporter = importer();
+defaultImporter.importer = importer;
+
+module.exports = defaultImporter;

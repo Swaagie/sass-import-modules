@@ -1,2 +1,7 @@
-#test
-  height: 32px;
+@import "./partial";
+
+$height: 32px;
+
+#test {
+  height: $height;
+}

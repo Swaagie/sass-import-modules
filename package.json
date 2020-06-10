@@ -2,13 +2,12 @@
   "name": "sass-import-modules",
   "version": "4.0.1",
   "description": "SASS/SCSS Import function to import files from node_modules",
-  "main": "./dist/index.js",
+  "main": "./src/index.js",
   "engines": {
     "node": ">= 10"
   },
   "scripts": {
-    "prepublishOnly": "babel src -d dist",
-    "test": "nyc mocha --require @babel/register ./test/test.js"
+    "test": "nyc mocha ./test/test.js"
   },
   "repository": {
     "type": "git",
@@ -20,17 +19,13 @@
   "author": "Martijn Swaagman",
   "license": "MIT",
   "devDependencies": {
-    "@babel/cli": "^7.7.5",
-    "@babel/core": "^7.7.5",
-    "@babel/preset-env": "^7.7.6",
-    "@babel/register": "^7.7.4",
     "assume": "^2.2.0",
-    "mocha": "^6.2.2",
-    "node-sass": "^4.13.0",
-    "nyc": "^15.0.0"
+    "mocha": "^6.2.3",
+    "node-sass": "^4.14.1",
+    "nyc": "^15.1.0"
   },
   "dependencies": {
     "diagnostics": "^2.0.2",
-    "resolve": "^1.13.0"
+    "resolve": "^1.17.0"
   }
 }
