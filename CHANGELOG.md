@@ -1,5 +1,10 @@
 # CHANGELOG
 
+- Remove ESM and expose CJS
+- Remove babel dependencies and build step/requirement
+- Expose default importer for CLI usage of `node-sass`
+- Add `partial` to default available resolvers
+
 ### 4.0.1
 
 - Use the `extensions` option of the `node` resolve algorithm to ensure that
