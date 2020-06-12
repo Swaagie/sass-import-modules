@@ -26,7 +26,7 @@ describe('SASS import modules', function () {
   });
 
   it('has configurable extensions', function (done) {
-    imports = importer({ ext: 'sass' }).bind({});
+    imports = importer({ extensions: ['sass'] }).bind({});
 
     imports('ext', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
@@ -35,7 +35,7 @@ describe('SASS import modules', function () {
     });
   });
 
-  it('imports relatives files', function (done) {
+  it.only('imports relatives files', function (done) {
     imports('second', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
       assume(file).to.include('test/fixtures/second.scss');

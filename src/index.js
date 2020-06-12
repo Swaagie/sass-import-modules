@@ -18,7 +18,7 @@ const debug = diagnostics('sass-import-modules');
  * @private
  */
 function extension(file, ext) {
-  if (!~file.indexOf(ext)) {
+  if (!path.extname(file)) {
     file += ext;
   }
 
@@ -56,27 +56,26 @@ function exists(file, done) {
  *
  * @param {String} base Current directory.
  * @param {String} file File path.
- * @param {String} ext File extension.
+ * @param {Array<String>} extensions Allowed file extensions.
  * @param {Function} next Completion callback.
  * @returns {void}
  * @private
  */
-function node(base, file, ext, next)  {
+function node(base, file, extensions, next)  {
   debug('Resolving file from node_modules: %s', file);
-  const extensions = [ext];
 
   return void resolve(file, {
     preserveSymlinks: false,
-    extensions: extensions,
-    basedir: base
+    basedir: base,
+    extensions
   }, (error, result) => {
     if (result) {
       return next(null, result);
     }
 
     resolve(file, {
-      extensions: extensions,
-      basedir: base
+      basedir: base,
+      extensions
     }, next);
   });
 }
@@ -87,18 +86,24 @@ function node(base, file, ext, next)  {
  *
  * @param {String} file File path.
  * @param {String} base Current directory.
- * @param {String} ext File extension.
+ * @param {Array<String>} extensions Allowed file extensions.
  * @param {Function} next Completion callback.
- * @returns {void}
  * @private
  */
-function local(base, file, ext, next) {
+function local(base, file, extensions, next) {
   debug('Resolving file locally: %s', file);
-  file = extension(path.join(base, file), ext);
+  let i = 0, found;
 
-  return void exists(file, exist => {
-    next(null, exist ? file : null);
-  });
+  function iterator(exist) {
+    if (!found && exist) found = file;
+    if (++i >= extensions.length) next(null, found);
+  }
+
+  for (const ext of extensions) {
+    file = extension(path.join(base, file), ext);
+    console.dir({ ext, file })
+    exists(file, iterator);
+  }
 }
 
 /**
@@ -168,13 +173,11 @@ function getResolvers(resolvers) {
  * @returns {Function} Importer.
  * @public
  */
-function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'partial', 'tilde', 'node']} = {}) {
+function importer({ paths = process.cwd(), extensions = ['.scss', '.css'], resolvers = ['local', 'partial', 'tilde', 'node']} = {}) {
   const dependencies = new Dependencies();
   resolvers = getResolvers(resolvers);
 
-  if (ext.charAt(0) !== '.') {
-    ext = '.' + ext;
-  }
+  extensions = extensions.map(e => e.charAt(0) !== '.' ? '.' + e : e);
 
   /**
    * Importer for SASS.
@@ -240,7 +243,7 @@ function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 
       }
 
       debug('Lookup %s [%s,  %s]', url, resolver.name, resolver.base);
-      resolver.fn(resolver.base, url, ext, next);
+      resolver.fn(resolver.base, url, extensions, next);
     })(fns);
   }
 };

@@ -25,6 +25,7 @@
     "nyc": "^15.1.0"
   },
   "dependencies": {
+    "async": "^3.2.0",
     "diagnostics": "^2.0.2",
     "resolve": "^1.17.0"
   }
