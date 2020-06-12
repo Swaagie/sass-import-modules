@@ -35,7 +35,7 @@ describe('SASS import modules', function () {
     });
   });
 
-  it.only('imports relatives files', function (done) {
+  it('imports relatives files', function (done) {
     imports('second', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
       assume(file).to.include('test/fixtures/second.scss');

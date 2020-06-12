@@ -3,6 +3,7 @@
 const Dependencies = require('./dependencies');
 const diagnostics = require('diagnostics');
 const resolve = require('resolve');
+const async = require('async');
 const path = require('path');
 const fs = require('fs');
 
@@ -47,7 +48,7 @@ function provide(file, done) {
  */
 function exists(file, done) {
   return void fs.stat(file, (error, stat) => {
-    done(!error && !!stat);
+    done(null, !error && !!stat); // Ignore errors
   });
 }
 
@@ -92,18 +93,9 @@ function node(base, file, extensions, next)  {
  */
 function local(base, file, extensions, next) {
   debug('Resolving file locally: %s', file);
-  let i = 0, found;
 
-  function iterator(exist) {
-    if (!found && exist) found = file;
-    if (++i >= extensions.length) next(null, found);
-  }
-
-  for (const ext of extensions) {
-    file = extension(path.join(base, file), ext);
-    console.dir({ ext, file })
-    exists(file, iterator);
-  }
+  const filePaths = extensions.map(ext => extension(path.join(base, file), ext));
+  async.detect(filePaths, exists, next);
 }
 
 /**
