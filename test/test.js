@@ -88,6 +88,20 @@ describe('SASS import modules', function () {
     });
   });
 
+  it('resolves regular CSS imports', function (done) {
+    sass.render({
+      file: path.join(__dirname, 'fixtures', 'index.scss'),
+      importer: imports
+    }, (err, result) => {
+      const css = result.css.toString('utf-8');
+
+      assume(css).to.include('#regular {\n  height: 1px; ');
+      assume(css).to.include('height: 32px; }');
+
+      done();
+    });
+  });
+
   it('can resolve circular references', function (done) {
     sass.render({
       file: path.join(__dirname, 'fixtures', 'circular.scss'),

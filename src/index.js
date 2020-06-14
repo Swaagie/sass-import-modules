@@ -94,8 +94,25 @@ function node(base, file, extensions, next)  {
 function local(base, file, extensions, next) {
   debug('Resolving file locally: %s', file);
 
-  const filePaths = extensions.map(ext => extension(path.join(base, file), ext));
-  async.detect(filePaths, exists, next);
+  const resolved = path.join(base, file);
+  const filePaths = extensions.map(ext => extension(resolved, ext));
+  async.detectSeries(filePaths, exists, (err, result) => {
+    if (err) return next(err);
+
+    //
+    // Node-sass is not consistent with how it treats resolved files
+    // If the file has no explicit extension it will assume its source
+    // is sass while it could just be regular CSS. Filenames with an
+    // explicit .css extension will result in: `import url(...)`.
+    // Returning only the orginal referenced filename will ensure
+    // functionality is consistent with the default importer.
+    //
+    if (result && path.extname(result) === '.css') {
+      return next(null, resolved);
+    }
+
+    next(null, result);
+  });
 }
 
 /**
