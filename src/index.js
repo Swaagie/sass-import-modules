@@ -53,6 +53,27 @@ function exists(file, done) {
 }
 
 /**
+ * Node-sass is not consistent with how it treats resolved files
+ * If the file has no explicit extension it will assume its source
+ * is sass while it could just be regular CSS. Filenames with an
+ * explicit .css extension will result in: `import url(...)`.
+ * Returning only the orginal referenced filename will ensure
+ * functionality is consistent with the default importer.
+ *
+ * @param {string} original Original file requested
+ * @param {string} resolved Resolved absolute filepath
+ * @returns {string} resolved filepath with or without .css extension
+ * @private
+ */
+function removeExtension(original, resolved) {
+  if (resolved && path.extname(original) !== '.css') {
+    resolved = resolved.replace('.css', '');
+  }
+
+  return resolved;
+}
+
+/**
  * Resolve the file in node_modules.
  *
  * @param {String} base Current directory.
@@ -62,32 +83,25 @@ function exists(file, done) {
  * @returns {void}
  * @private
  */
-function node(base, file, extensions, next)  {
+function node(basedir, file, extensions, next)  {
   debug('Resolving file from node_modules: %s', file);
 
-  //
-  // Remove .css if not explicit requested.
-  //
   function check(error, result) {
-    if (result && path.extname(file) !== '.css') {
-      result = result.replace('.css', '');
-    }
-
-    next(error, result);
+    next(error, removeExtension(file, result));
   }
 
   return void resolve(file, {
     preserveSymlinks: false,
-    basedir: base,
-    extensions
+    extensions,
+    basedir
   }, (error, result) => {
     if (result) {
       return check(null, result);
     }
 
     resolve(file, {
-      basedir: base,
-      extensions
+      extensions,
+      basedir
     }, check);
   });
 }
@@ -110,19 +124,7 @@ function local(base, file, extensions, next) {
   async.detectSeries(filePaths, exists, (err, result) => {
     if (err) return next(err);
 
-    //
-    // Node-sass is not consistent with how it treats resolved files
-    // If the file has no explicit extension it will assume its source
-    // is sass while it could just be regular CSS. Filenames with an
-    // explicit .css extension will result in: `import url(...)`.
-    // Returning only the orginal referenced filename will ensure
-    // functionality is consistent with the default importer.
-    //
-    if (result && path.extname(result) === '.css') {
-      return next(null, resolved);
-    }
-
-    next(null, result);
+    next(null, removeExtension(file, result));
   });
 }
 
