@@ -65,7 +65,7 @@ const { importer } = require('sass-import-modules');
   importer(/* { options } */);
 ```
 
-- **ext** file extension, i.e `.scss`, `.sass`, `scss` or `sass` (default: `.scss`).
+- **extension** file extension, i.e `['.scss']`, `['.sass']`, `['scss']` or `['sass']` (default: `['.scss', '.css']`).
 - **resolvers** order of and set of resolvers to use (default: `['local', 'tilde', 'node']`):
   - `local`,
   - `tilde`,

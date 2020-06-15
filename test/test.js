@@ -26,7 +26,7 @@ describe('SASS import modules', function () {
   });
 
   it('has configurable extensions', function (done) {
-    imports = importer({ ext: 'sass' }).bind({});
+    imports = importer({ extensions: ['sass'] }).bind({});
 
     imports('ext', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
@@ -63,7 +63,14 @@ describe('SASS import modules', function () {
     imports('test/file', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
       assume(file).to.include('test/fixtures/node_modules/test/file.scss');
-      done();
+
+      // .css should not be appended if explicitly added.
+      imports('test/regular', fixtures, function ({ file } = {}) {
+        assume(file).to.be.a('string');
+        assume(file).to.include('test/fixtures/node_modules/test/regular');
+        assume(file).to.not.include('.css');
+        done();
+      });
     });
   });
 
@@ -84,6 +91,20 @@ describe('SASS import modules', function () {
     imports('~diagnostics/package.json', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
       assume(file).to.include('node_modules/diagnostics/package.json');
+      done();
+    });
+  });
+
+  it('resolves regular CSS imports', function (done) {
+    sass.render({
+      file: path.join(__dirname, 'fixtures', 'index.scss'),
+      importer: imports
+    }, (err, result) => {
+      const css = result.css.toString('utf-8');
+
+      assume(css).to.include('#regular {\n  height: 1px; ');
+      assume(css).to.include('height: 32px; }');
+
       done();
     });
   });

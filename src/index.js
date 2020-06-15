@@ -3,6 +3,7 @@
 const Dependencies = require('./dependencies');
 const diagnostics = require('diagnostics');
 const resolve = require('resolve');
+const async = require('async');
 const path = require('path');
 const fs = require('fs');
 
@@ -18,7 +19,7 @@ const debug = diagnostics('sass-import-modules');
  * @private
  */
 function extension(file, ext) {
-  if (!~file.indexOf(ext)) {
+  if (!path.extname(file)) {
     file += ext;
   }
 
@@ -47,8 +48,29 @@ function provide(file, done) {
  */
 function exists(file, done) {
   return void fs.stat(file, (error, stat) => {
-    done(!error && !!stat);
+    done(null, !error && !!stat); // Ignore errors
   });
+}
+
+/**
+ * Node-sass is not consistent with how it treats resolved files
+ * If the file has no explicit extension it will assume its source
+ * is sass while it could just be regular CSS. Filenames with an
+ * explicit .css extension will result in: `import url(...)`.
+ * Returning only the orginal referenced filename will ensure
+ * functionality is consistent with the default importer.
+ *
+ * @param {string} original Original file requested
+ * @param {string} resolved Resolved absolute filepath
+ * @returns {string} resolved filepath with or without .css extension
+ * @private
+ */
+function removeExtension(original, resolved) {
+  if (resolved && path.extname(original) !== '.css') {
+    resolved = resolved.replace('.css', '');
+  }
+
+  return resolved;
 }
 
 /**
@@ -56,28 +78,31 @@ function exists(file, done) {
  *
  * @param {String} base Current directory.
  * @param {String} file File path.
- * @param {String} ext File extension.
+ * @param {Array<String>} extensions Allowed file extensions.
  * @param {Function} next Completion callback.
  * @returns {void}
  * @private
  */
-function node(base, file, ext, next)  {
+function node(basedir, file, extensions, next)  {
   debug('Resolving file from node_modules: %s', file);
-  const extensions = [ext];
+
+  function check(error, result) {
+    next(error, removeExtension(file, result));
+  }
 
   return void resolve(file, {
     preserveSymlinks: false,
-    extensions: extensions,
-    basedir: base
+    extensions,
+    basedir
   }, (error, result) => {
     if (result) {
-      return next(null, result);
+      return check(null, result);
     }
 
     resolve(file, {
-      extensions: extensions,
-      basedir: base
-    }, next);
+      extensions,
+      basedir
+    }, check);
   });
 }
 
@@ -87,17 +112,19 @@ function node(base, file, ext, next)  {
  *
  * @param {String} file File path.
  * @param {String} base Current directory.
- * @param {String} ext File extension.
+ * @param {Array<String>} extensions Allowed file extensions.
  * @param {Function} next Completion callback.
- * @returns {void}
  * @private
  */
-function local(base, file, ext, next) {
+function local(base, file, extensions, next) {
   debug('Resolving file locally: %s', file);
-  file = extension(path.join(base, file), ext);
 
-  return void exists(file, exist => {
-    next(null, exist ? file : null);
+  const resolved = path.join(base, file);
+  const filePaths = extensions.map(ext => extension(resolved, ext));
+  async.detectSeries(filePaths, exists, (err, result) => {
+    if (err) return next(err);
+
+    next(null, removeExtension(file, result));
   });
 }
 
@@ -168,13 +195,11 @@ function getResolvers(resolvers) {
  * @returns {Function} Importer.
  * @public
  */
-function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 'partial', 'tilde', 'node']} = {}) {
+function importer({ paths = process.cwd(), extensions = ['.scss', '.css'], resolvers = ['local', 'partial', 'tilde', 'node']} = {}) {
   const dependencies = new Dependencies();
   resolvers = getResolvers(resolvers);
 
-  if (ext.charAt(0) !== '.') {
-    ext = '.' + ext;
-  }
+  extensions = extensions.map(e => e.charAt(0) !== '.' ? '.' + e : e);
 
   /**
    * Importer for SASS.
@@ -240,7 +265,7 @@ function importer({ paths = process.cwd(), ext = '.scss', resolvers = ['local', 
       }
 
       debug('Lookup %s [%s,  %s]', url, resolver.name, resolver.base);
-      resolver.fn(resolver.base, url, ext, next);
+      resolver.fn(resolver.base, url, extensions, next);
     })(fns);
   }
 };
