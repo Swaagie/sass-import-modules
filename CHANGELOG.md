@@ -1,5 +1,10 @@
 # CHANGELOG
 
+### 6.0.0
+
+- Remove resolved extension for `.css` if not explicitly provided from the 
+  source to prevent `import url()` syntax from `node-sass`.
+
 ### 5.0.0
 
 - Remove ESM and expose CJS
