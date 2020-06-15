@@ -65,19 +65,30 @@ function exists(file, done) {
 function node(base, file, extensions, next)  {
   debug('Resolving file from node_modules: %s', file);
 
+  //
+  // Remove .css if not explicit requested.
+  //
+  function check(error, result) {
+    if (result && path.extname(file) !== '.css') {
+      result = result.replace('.css', '');
+    }
+
+    next(error, result);
+  }
+
   return void resolve(file, {
     preserveSymlinks: false,
     basedir: base,
     extensions
   }, (error, result) => {
     if (result) {
-      return next(null, result);
+      return check(null, result);
     }
 
     resolve(file, {
       basedir: base,
       extensions
-    }, next);
+    }, check);
   });
 }
 

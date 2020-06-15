@@ -63,7 +63,14 @@ describe('SASS import modules', function () {
     imports('test/file', fixtures, function ({ file } = {}) {
       assume(file).to.be.a('string');
       assume(file).to.include('test/fixtures/node_modules/test/file.scss');
-      done();
+
+      // .css should not be appended if explicitly added.
+      imports('test/regular', fixtures, function ({ file } = {}) {
+        assume(file).to.be.a('string');
+        assume(file).to.include('test/fixtures/node_modules/test/regular');
+        assume(file).to.not.include('.css');
+        done();
+      });
     });
   });
 
