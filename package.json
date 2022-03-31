@@ -1,6 +1,6 @@
 {
   "name": "sass-import-modules",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "SASS/SCSS Import function to import files from node_modules",
   "main": "./src/index.js",
   "engines": {
