@@ -66,7 +66,7 @@ const { importer } = require('sass-import-modules');
 ```
 
 - **extension** file extension, i.e `['.scss']`, `['.sass']`, `['scss']` or `['sass']` (default: `['.scss', '.css']`).
-- **resolvers** order of and set of resolvers to use (default: `['local', 'tilde', 'node']`):
+- **resolvers** order of and set of resolvers to use (default: `['local', 'tilde', 'node', 'partial']`):
   - `local`,
   - `tilde`,
   - `node`,
