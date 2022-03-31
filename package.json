@@ -4,7 +4,7 @@
   "description": "SASS/SCSS Import function to import files from node_modules",
   "main": "./src/index.js",
   "engines": {
-    "node": ">= 10"
+    "node": ">= 12"
   },
   "scripts": {
     "test": "nyc mocha ./test/test.js"
@@ -19,14 +19,14 @@
   "author": "Martijn Swaagman",
   "license": "MIT",
   "devDependencies": {
-    "assume": "^2.2.0",
-    "mocha": "^6.2.3",
-    "node-sass": "^4.14.1",
+    "assume": "^2.3.0",
+    "mocha": "^9.2.2",
+    "node-sass": "^7.0.1",
     "nyc": "^15.1.0"
   },
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.3",
     "diagnostics": "^2.0.2",
-    "resolve": "^1.17.0"
+    "resolve": "^1.22.0"
   }
 }
